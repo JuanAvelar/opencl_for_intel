@@ -1,0 +1,57 @@
+
+Hecho por Ing. Juan Pablo Avelar para eGraf equipos 
+Fecha: 27/11/2019
+
+instructions for intel opencl sdk graphics:
+
+//descargar sdk OpenCL de la pagina de intel para linux
+//extraer carpeta
+//ejecutar script de shell
+
+$chmod +x install.sh
+$./install.sh
+
+//Este solo descargara el runtime de CPU only y por otra parte necesitas descargar el compute runtime de los graficos.
+
+$sudo apt-get install clinfo
+$clinfo
+
+//deberia aparecer la informacion del CPU y no de los graficos
+
+$mkdir intel_workspace
+$cd intel_workspace
+$git clone https://github.com/intel/compute-runtime neo
+$mkdir build
+
+//aun no debemos instalarlo hasta no tener las demas dependencias
+/*Intel graphics compiler for opencl*/
+
+$git clone -b release/9.x https://github.com/llvm/llvm-project llvm-project
+$ git clone -b ocl-open-90 https://github.com/intel/opencl-clang llvm-project/llvm/projects/opencl-clang
+$ git clone -b llvm_release_90 https://github.com/KhronosGroup/SPIRV-LLVM-Translator llvm-project/llvm/projects/llvm-spirv
+$ git clone https://github.com/intel/llvm-patches llvm_patches
+$ mv llvm-project/clang llvm-project/llvm/tools/
+
+$ git clone https://github.com/intel/intel-graphics-compiler igc
+
+$ mkdir build_graphics_compiler
+$ cd build_graphics_compiler
+$ cmake ../igc/IGC
+$ make -j`nproc`
+$ sudo make install
+
+/*Intel graphics memory management library*/
+$ cd ..
+$ git clone https://github.com/intel/gmmlib.git
+$ cd gmmlib
+$ mkdir build_gmmlib && cd build_gmmlib
+$ cmake [-DCMAKE_BUILD_TYPE= Release] [-DARCH= 64] ..
+$ make -j`nproc`
+$ sudo make install
+
+$ cd ../..
+$ cd build
+$ cmake -DCMAKE_BUILD_TYPE=Release -DSKIP_UNIT_TESTS=1 ../neo
+$ sudo ldconfig
+$ make -j`nproc`
+$ sudo make install
